@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>auditorium.properties</value>
+        </property>
+    </bean>
+
+    <bean id="auditoriumRepo" class="ua.epam.spring.hometask.dao.AuditoriumRepository"/>
+    <bean id="eventRepo" class="ua.epam.spring.hometask.dao.EventRepository"/>
+    <bean id="userRepo" class="ua.epam.spring.hometask.dao.UserRepository"/>
+
+    <bean id="birthDayDiscountStrategy" class="ua.epam.spring.hometask.discount.BirthDayDiscountStrategy"/>
+    <bean id="everyTenDiscountStrategy" class="ua.epam.spring.hometask.discount.EveryTenTicketDiscountStrategy">
+        <constructor-arg ref="userRepo"/>
+    </bean>
+
+    <bean id="discountService" class="ua.epam.spring.hometask.service.implementation.DiscountServiceImpl">
+        <property name="discountStrategies">
+            <list>
+                <ref bean="birthDayDiscountStrategy"/>
+                <ref bean="everyTenDiscountStrategy"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="auditoriumService" class="ua.epam.spring.hometask.service.implementation.AuditoriumServiceImpl">
+        <property name="auditoriums" ref="auditoriums">
+        </property>
+    </bean>
+
+    <bean id="eventService" class="ua.epam.spring.hometask.service.implementation.EventServiceImpl">
+        <constructor-arg ref="eventRepo"/>
+    </bean>
+    <bean id="userService" class="ua.epam.spring.hometask.service.implementation.UserServiceImpl">
+        <constructor-arg ref="userRepo"/>
+    </bean>
+
+    <bean id="bookingService" class="ua.epam.spring.hometask.service.implementation.BookingServiceImpl">
+        <property name="eventService" ref="eventService"/>
+        <property name="userService" ref="userService"/>
+        <property name="userRepository" ref="userRepo"/>
+        <property name="eventRepository" ref="eventRepo"/>
+    </bean>
+
+
+
+    <bean id="mathAuditorium" class="ua.epam.spring.hometask.domain.Auditorium">
+        <property name="name" value="${math_auditorium_first.name}"/>
+        <property name="numberOfSeats" value="${math_auditorium.number_of_seats}"/>
+        <property name="vipSeats" value="#{'${math_auditorium.vip_seats}'.split(',')}"/>
+    </bean>
+    <bean id="physicsAuditorium" class="ua.epam.spring.hometask.domain.Auditorium">
+        <property name="name" value="${physics_auditorium_second.name}"/>
+        <property name="numberOfSeats" value="${physics_auditorium.number_of_seats}"/>
+        <property name="vipSeats" value="#{'${physics_auditorium.vip_seats}'.split(',')}"/>
+    </bean>
+
+    <util:set id="auditoriums">
+        <ref bean="mathAuditorium"/>
+        <ref bean="physicsAuditorium"/>
+    </util:set>
+</beans>
