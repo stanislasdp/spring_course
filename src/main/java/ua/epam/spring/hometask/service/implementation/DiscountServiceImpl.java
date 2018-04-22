@@ -13,10 +13,10 @@ public class DiscountServiceImpl implements DiscountService {
     private List<DiscountStrategy> discountStrategies;
 
     @Override
-    public byte getDiscount(User user, Event event, LocalDateTime airDateTime, long numberOfTickets) {
+    public byte getDiscount(User user, Event event, LocalDateTime airDateTime) {
 
        return (byte) discountStrategies.stream()
-            .map(discountStrategy -> discountStrategy.getDiscountPercent(user, event, airDateTime, numberOfTickets))
+            .map(discountStrategy -> discountStrategy.getDiscountPercent(user, event, airDateTime, user.getTickets().size()))
            .mapToInt(value -> value).max().orElse(0);
     }
 
